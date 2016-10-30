@@ -77,8 +77,6 @@ class Container implements IntrospectableContainerInterface
     private $underscoreMap = array('_' => '', '.' => '_', '\\' => '_');
 
     /**
-     * Constructor.
-     *
      * @param ParameterBagInterface $parameterBag A ParameterBagInterface instance
      */
     public function __construct(ParameterBagInterface $parameterBag = null)
@@ -193,6 +191,10 @@ class Container implements IntrospectableContainerInterface
             $this->scopedServices[$scope][$id] = $service;
         }
 
+        if (isset($this->aliases[$id])) {
+            unset($this->aliases[$id]);
+        }
+
         $this->services[$id] = $service;
 
         if (method_exists($this, $method = 'synchronize'.strtr($id, $this->underscoreMap).'Service')) {
@@ -286,10 +288,10 @@ class Container implements IntrospectableContainerInterface
                     }
 
                     $alternatives = array();
-                    foreach ($this->services as $key => $associatedService) {
-                        $lev = levenshtein($id, $key);
-                        if ($lev <= strlen($id) / 3 || false !== strpos($key, $id)) {
-                            $alternatives[] = $key;
+                    foreach ($this->getServiceIds() as $knownId) {
+                        $lev = levenshtein($id, $knownId);
+                        if ($lev <= strlen($id) / 3 || false !== strpos($knownId, $id)) {
+                            $alternatives[] = $knownId;
                         }
                     }
 
@@ -305,14 +307,16 @@ class Container implements IntrospectableContainerInterface
                 $service = $this->$method();
             } catch (\Exception $e) {
                 unset($this->loading[$id]);
-
-                if (array_key_exists($id, $this->services)) {
-                    unset($this->services[$id]);
-                }
+                unset($this->services[$id]);
 
                 if ($e instanceof InactiveScopeException && self::EXCEPTION_ON_INVALID_REFERENCE !== $invalidBehavior) {
                     return;
                 }
+
+                throw $e;
+            } catch (\Throwable $e) {
+                unset($this->loading[$id]);
+                unset($this->services[$id]);
 
                 throw $e;
             }
@@ -355,9 +359,8 @@ class Container implements IntrospectableContainerInterface
     public function getServiceIds()
     {
         $ids = array();
-        $r = new \ReflectionClass($this);
-        foreach ($r->getMethods() as $method) {
-            if (preg_match('/^get(.+)Service$/', $method->name, $match)) {
+        foreach (get_class_methods($this) as $method) {
+            if (preg_match('/^get(.+)Service$/', $method, $match)) {
                 $ids[] = self::underscore($match[1]);
             }
         }
@@ -537,6 +540,6 @@ class Container implements IntrospectableContainerInterface
      */
     public static function underscore($id)
     {
-        return strtolower(preg_replace(array('/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'), array('\\1_\\2', '\\1_\\2'), strtr($id, '_', '.')));
+        return strtolower(preg_replace(array('/([A-Z]+)([A-Z][a-z])/', '/([a-z\d])([A-Z])/'), array('\\1_\\2', '\\1_\\2'), str_replace('_', '.', $id)));
     }
 }

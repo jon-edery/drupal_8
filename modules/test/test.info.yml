@@ -1,0 +1,5 @@
+name: Test Module
+type: module
+description: "test module"
+package: tests
+core: 8.x

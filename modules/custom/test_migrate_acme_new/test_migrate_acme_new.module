@@ -1,0 +1,24 @@
+<?php
+
+/**
+ * @file
+ * Contains test_migrate_acme_new.module..
+ */
+
+use Drupal\Core\Routing\RouteMatchInterface;
+
+/**
+ * Implements hook_help().
+ */
+function test_migrate_acme_new_help($route_name, RouteMatchInterface $route_match) {
+  switch ($route_name) {
+    // Main module help for the test_migrate_acme_new module.
+    case 'help.page.test_migrate_acme_new':
+      $output = '';
+      $output .= '<h3>' . t('About') . '</h3>';
+      $output .= '<p>' . t('Test module for migartions') . '</p>';
+      return $output;
+
+    default:
+  }
+}

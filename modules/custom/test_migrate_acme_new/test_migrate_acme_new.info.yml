@@ -1,0 +1,5 @@
+name: test_migrate_acme_new
+type: module
+description: Test module for migartions
+core: 8.x
+package: custom development

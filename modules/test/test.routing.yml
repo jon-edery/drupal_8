@@ -1,0 +1,6 @@
+test_says:
+  path: /the/test/page/{num}
+  defaults:
+    _controller: Drupal\test\Controller\TestController::test
+  requirements:
+    _permission: 'access content'

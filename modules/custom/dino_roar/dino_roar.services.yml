@@ -1,0 +1,17 @@
+parameters:
+  dino.roar.use.key.value.cache: true
+
+services:
+    dinor_roar_service_generator:
+      class: Drupal\dino_roar\test\testService
+      arguments: ['@keyvalue', %dino.roar.use.key.value.cache%]
+
+    dino_event_lister:
+      class: Drupal\dino_roar\test\DinoListener
+      arguments: ['@logger.factory']
+      tags:
+        - {name: event_subscriber}
+
+
+
+

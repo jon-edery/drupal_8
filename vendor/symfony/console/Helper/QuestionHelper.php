@@ -162,11 +162,12 @@ class QuestionHelper extends Helper
         $message = $question->getQuestion();
 
         if ($question instanceof ChoiceQuestion) {
-            $width = max(array_map('strlen', array_keys($question->getChoices())));
+            $maxWidth = max(array_map(array($this, 'strlen'), array_keys($question->getChoices())));
 
             $messages = (array) $question->getQuestion();
             foreach ($question->getChoices() as $key => $value) {
-                $messages[] = sprintf("  [<info>%-${width}s</info>] %s", $key, $value);
+                $width = $maxWidth - $this->strlen($key);
+                $messages[] = '  [<info>'.$key.str_repeat(' ', $width).'</info>] '.$value;
             }
 
             $output->writeln($messages);
@@ -199,6 +200,7 @@ class QuestionHelper extends Helper
      *
      * @param OutputInterface $output
      * @param Question        $question
+     * @param resource        $inputStream
      *
      * @return string
      */
@@ -315,7 +317,8 @@ class QuestionHelper extends Helper
     /**
      * Gets a hidden response from user.
      *
-     * @param OutputInterface $output An Output instance
+     * @param OutputInterface $output      An Output instance
+     * @param resource        $inputStream The handler resource
      *
      * @return string The answer
      *
