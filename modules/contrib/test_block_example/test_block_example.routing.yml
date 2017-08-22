@@ -1,0 +1,7 @@
+test.block.example:
+  path: '/test/examples/block-example'
+  defaults:
+    _controller: '\Drupal\test_block_example\Controller\TestBlockExampleController::description'
+    _title:  'Test Block Example'
+  requirements:
+    _permission: 'access content'

@@ -261,7 +261,7 @@ class Request
     /**
      * Creates a new request with values from PHP's super globals.
      *
-     * @return Request A new request
+     * @return static
      */
     public static function createFromGlobals()
     {
@@ -304,7 +304,7 @@ class Request
      * @param array  $server     The server parameters ($_SERVER)
      * @param string $content    The raw body data
      *
-     * @return Request A Request instance
+     * @return static
      */
     public static function create($uri, $method = 'GET', $parameters = array(), $cookies = array(), $files = array(), $server = array(), $content = null)
     {
@@ -422,7 +422,7 @@ class Request
      * @param array $files      The FILES parameters
      * @param array $server     The SERVER parameters
      *
-     * @return Request The duplicated request
+     * @return static
      */
     public function duplicate(array $query = null, array $request = null, array $attributes = null, array $cookies = null, array $files = null, array $server = null)
     {
@@ -715,6 +715,8 @@ class Request
      * It is better to explicitly get request parameters from the appropriate
      * public property instead (query, attributes, request).
      *
+     * Note: Finding deep items is deprecated since version 2.8, to be removed in 3.0.
+     *
      * @param string $key     the key
      * @param mixed  $default the default value if the parameter key does not exist
      * @param bool   $deep    is parameter deep in multidimensional array
@@ -723,6 +725,10 @@ class Request
      */
     public function get($key, $default = null, $deep = false)
     {
+        if ($deep) {
+            @trigger_error('Using paths to find deeper items in '.__METHOD__.' is deprecated since version 2.8 and will be removed in 3.0. Filter the returned value in your own code instead.', E_USER_DEPRECATED);
+        }
+
         if ($this !== $result = $this->query->get($key, $this, $deep)) {
             return $result;
         }
@@ -1466,15 +1472,21 @@ class Request
     /**
      * Checks whether the method is safe or not.
      *
+     * @see https://tools.ietf.org/html/rfc7231#section-4.2.1
+     *
+     * @param bool $andCacheable Adds the additional condition that the method should be cacheable. True by default.
+     *
      * @return bool
      */
-    public function isMethodSafe()
+    public function isMethodSafe(/* $andCacheable = true */)
     {
-        return in_array($this->getMethod(), array('GET', 'HEAD', 'OPTIONS', 'TRACE'));
+        return in_array($this->getMethod(), 0 < func_num_args() && !func_get_arg(0) ? array('GET', 'HEAD', 'OPTIONS', 'TRACE') : array('GET', 'HEAD'));
     }
 
     /**
      * Checks whether the method is cacheable or not.
+     *
+     * @see https://tools.ietf.org/html/rfc7231#section-4.2.3
      *
      * @return bool
      */
@@ -1674,7 +1686,7 @@ class Request
      * It works if your JavaScript library sets an X-Requested-With HTTP header.
      * It is known to work with common JavaScript frameworks:
      *
-     * @link http://en.wikipedia.org/wiki/List_of_Ajax_frameworks#JavaScript
+     * @see http://en.wikipedia.org/wiki/List_of_Ajax_frameworks#JavaScript
      *
      * @return bool true if the request is an XMLHttpRequest, false otherwise
      */

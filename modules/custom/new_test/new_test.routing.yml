@@ -1,0 +1,6 @@
+new_test_says:
+  path: /the/new_test/says
+  defaults:
+    _controller: Drupal\new_test\Controller\newTestController::talk
+  requirements:
+    _permission: 'access content'

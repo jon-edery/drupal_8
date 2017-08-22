@@ -147,11 +147,31 @@ class DefinitionDecorator extends Definition
     /**
      * {@inheritdoc}
      */
-    public function setDecoratedService($id, $renamedId = null)
+    public function setDecoratedService($id, $renamedId = null, $priority = 0)
     {
         $this->changes['decorated_service'] = true;
 
-        return parent::setDecoratedService($id, $renamedId);
+        return parent::setDecoratedService($id, $renamedId, $priority);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setDeprecated($boolean = true, $template = null)
+    {
+        $this->changes['deprecated'] = true;
+
+        return parent::setDeprecated($boolean, $template);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function setAutowired($autowired)
+    {
+        $this->changes['autowire'] = true;
+
+        return parent::setAutowired($autowired);
     }
 
     /**
@@ -192,7 +212,7 @@ class DefinitionDecorator extends Definition
      * @param int   $index
      * @param mixed $value
      *
-     * @return DefinitionDecorator the current instance
+     * @return $this
      *
      * @throws InvalidArgumentException when $index isn't an integer
      */

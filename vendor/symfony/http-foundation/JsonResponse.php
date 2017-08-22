@@ -61,7 +61,7 @@ class JsonResponse extends Response
      * @param int   $status  The response status code
      * @param array $headers An array of response headers
      *
-     * @return JsonResponse
+     * @return static
      */
     public static function create($data = null, $status = 200, $headers = array())
     {
@@ -73,7 +73,7 @@ class JsonResponse extends Response
      *
      * @param string|null $callback The JSONP callback or null to use none
      *
-     * @return JsonResponse
+     * @return $this
      *
      * @throws \InvalidArgumentException When the callback name is not valid
      */
@@ -108,7 +108,7 @@ class JsonResponse extends Response
      *
      * @param mixed $data
      *
-     * @return JsonResponse
+     * @return $this
      *
      * @throws \InvalidArgumentException
      */
@@ -161,7 +161,7 @@ class JsonResponse extends Response
         }
 
         if (JSON_ERROR_NONE !== json_last_error()) {
-            throw new \InvalidArgumentException($this->transformJsonError());
+            throw new \InvalidArgumentException(json_last_error_msg());
         }
 
         $this->data = $data;
@@ -184,7 +184,7 @@ class JsonResponse extends Response
      *
      * @param int $encodingOptions
      *
-     * @return JsonResponse
+     * @return $this
      */
     public function setEncodingOptions($encodingOptions)
     {
@@ -196,7 +196,7 @@ class JsonResponse extends Response
     /**
      * Updates the content and headers according to the JSON data and callback.
      *
-     * @return JsonResponse
+     * @return $this
      */
     protected function update()
     {
@@ -214,32 +214,5 @@ class JsonResponse extends Response
         }
 
         return $this->setContent($this->data);
-    }
-
-    private function transformJsonError()
-    {
-        if (function_exists('json_last_error_msg')) {
-            return json_last_error_msg();
-        }
-
-        switch (json_last_error()) {
-            case JSON_ERROR_DEPTH:
-                return 'Maximum stack depth exceeded.';
-
-            case JSON_ERROR_STATE_MISMATCH:
-                return 'Underflow or the modes mismatch.';
-
-            case JSON_ERROR_CTRL_CHAR:
-                return 'Unexpected control character found.';
-
-            case JSON_ERROR_SYNTAX:
-                return 'Syntax error, malformed JSON.';
-
-            case JSON_ERROR_UTF8:
-                return 'Malformed UTF-8 characters, possibly incorrectly encoded.';
-
-            default:
-                return 'Unknown error.';
-        }
     }
 }

@@ -1,0 +1,5 @@
+name: new_test
+type: module
+core: 8.x
+package: dev
+description: new test module

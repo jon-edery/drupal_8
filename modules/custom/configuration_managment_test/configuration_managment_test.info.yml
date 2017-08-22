@@ -1,0 +1,5 @@
+name: configuration_managment_test
+type: module
+description: Demo module for testing config managment
+core: 8.x
+package: development
